@@ -1,0 +1,110 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background-color: #f4f4f4;
+    margin: 20px;
+}
+
+.container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 25px;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.controls button {
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#feedBtn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#feedBtn:hover {
+    background-color: #45a049;
+}
+
+#sleepBtn {
+    background-color: #008CBA;
+    color: white;
+}
+
+#sleepBtn:hover {
+    background-color: #007bb5;
+}
+
+#cryBtn {
+    background-color: #f44336;
+    color: white;
+}
+
+#cryBtn:hover {
+    background-color: #da190b;
+}
+
+#milkInput {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 80px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.log-container {
+    text-align: left;
+}
+
+.log-container h2 {
+    color: #555;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+#activityTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+#activityTable th,
+#activityTable td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+#activityTable th {
+    background-color: #f2f2f2;
+    color: #333;
+    font-weight: bold;
+}
+
+#activityTable tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
