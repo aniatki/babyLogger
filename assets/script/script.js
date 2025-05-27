@@ -2,12 +2,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedBtn = document.getElementById('feedBtn');
     const sleepBtn = document.getElementById('sleepBtn');
     const cryBtn = document.getElementById('cryBtn');
+    const crampsBtn = document.getElementById('crampsBtn'); // New
+    const gasBtn = document.getElementById('gasBtn');       // New
+    const stoolBtn = document.getElementById('stoolBtn');   // New
     const milkInput = document.getElementById('milkInput');
     const activityTableBody = document.querySelector('#activityTable tbody');
+    const activityTimeInput = document.getElementById('activityTime'); // New
+    const resetTimeBtn = document.getElementById('resetTimeBtn'); // New
 
     let activities = [];
 
-    // Function to load activities from localStorage
+    // Set the initial time input to the current time
+    const setActivityTimeToNow = () => {
+        const now = new Date();
+        now.setSeconds(0); // Clear seconds for cleaner display
+        now.setMilliseconds(0); // Clear milliseconds
+        activityTimeInput.value = now.toISOString().slice(0, 16); // Format for datetime-local input
+    };
+
+    // Load activities from localStorage
     const loadActivities = () => {
         const storedActivities = localStorage.getItem('newbornActivities');
         if (storedActivities) {
@@ -21,17 +34,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Function to save activities to localStorage
+    // Save activities to localStorage
     const saveActivities = () => {
         localStorage.setItem('newbornActivities', JSON.stringify(activities));
     };
 
-    // Function to get current time in HH:MM format
-    const getCurrentTime = () => {
-        const now = new Date();
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
+    // Function to get the time for logging
+    const getLogTime = () => {
+        const inputTime = activityTimeInput.value;
+        if (inputTime) {
+            // If user provided a time, use it
+            const date = new Date(inputTime);
+            return {
+                display: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                timestamp: date.getTime()
+            };
+        } else {
+            // Otherwise, use the current time
+            const now = new Date();
+            return {
+                display: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                timestamp: now.getTime()
+            };
+        }
     };
 
     // Function to render activities in the table
@@ -46,15 +71,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const activityCell = newRow.insertCell();
             const detailsCell = newRow.insertCell();
 
-            timeCell.textContent = activity.time;
+            timeCell.textContent = activity.time; // This is the 'display' time
             activityCell.textContent = activity.type;
             detailsCell.textContent = activity.details || '';
         });
     };
 
-    // Load activities when the page loads
+    // Initialize: Set current time and load/render activities
+    setActivityTimeToNow();
     loadActivities();
-    renderActivities(); // Render them immediately after loading
+    renderActivities();
+
+    // Event listener for Reset Time button
+    resetTimeBtn.addEventListener('click', setActivityTimeToNow);
 
     // Event listener for Feed button
     feedBtn.addEventListener('click', () => {
@@ -63,41 +92,37 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please enter a valid milk amount in ml.');
             return;
         }
-        const time = getCurrentTime();
+        const { display: time, timestamp } = getLogTime();
         activities.push({
             type: 'Fed',
             details: `${milkAmount}ml`,
             time: time,
-            timestamp: new Date().getTime() // Store timestamp for sorting
+            timestamp: timestamp
         });
         milkInput.value = ''; // Clear input after logging
         saveActivities(); // Save to localStorage
         renderActivities();
+        setActivityTimeToNow(); // Reset time input after logging
     });
 
-    // Event listener for Sleep button
-    sleepBtn.addEventListener('click', () => {
-        const time = getCurrentTime();
+    // Universal logging function for other activities
+    const logActivity = (type, details = '') => {
+        const { display: time, timestamp } = getLogTime();
         activities.push({
-            type: 'Slept',
-            details: '',
+            type: type,
+            details: details,
             time: time,
-            timestamp: new Date().getTime()
+            timestamp: timestamp
         });
-        saveActivities(); // Save to localStorage
+        saveActivities();
         renderActivities();
-    });
+        setActivityTimeToNow(); // Reset time input after logging
+    };
 
-    // Event listener for Cry button
-    cryBtn.addEventListener('click', () => {
-        const time = getCurrentTime();
-        activities.push({
-            type: 'Cried',
-            details: '',
-            time: time,
-            timestamp: new Date().getTime()
-        });
-        saveActivities(); // Save to localStorage
-        renderActivities();
-    });
+    // Event listeners for new and existing buttons
+    sleepBtn.addEventListener('click', () => logActivity('Slept'));
+    cryBtn.addEventListener('click', () => logActivity('Cried'));
+    crampsBtn.addEventListener('click', () => logActivity('Cramps'));
+    gasBtn.addEventListener('click', () => logActivity('Gas'));
+    stoolBtn.addEventListener('click', () => logActivity('Stool'));
 });

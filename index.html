@@ -10,11 +10,20 @@
     <div class="container">
         <h1>Newborn Activity Log</h1>
 
+        <div class="time-input-group">
+            <label for="activityTime">Activity Time:</label>
+            <input type="datetime-local" id="activityTime">
+            <button id="resetTimeBtn">Use Current Time</button>
+        </div>
+
         <div class="controls">
             <button id="feedBtn">Feed</button>
             <input type="number" id="milkInput" placeholder="Milk in ml">
             <button id="sleepBtn">Sleep</button>
             <button id="cryBtn">Cry</button>
+            <button id="crampsBtn">Cramps</button>
+            <button id="gasBtn">Gas</button>
+            <button id="stoolBtn">Stool</button>
         </div>
 
         <div class="log-container">
