@@ -2,22 +2,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedBtn = document.getElementById('feedBtn');
     const sleepBtn = document.getElementById('sleepBtn');
     const cryBtn = document.getElementById('cryBtn');
-    const crampsBtn = document.getElementById('crampsBtn'); // New
-    const gasBtn = document.getElementById('gasBtn');       // New
-    const stoolBtn = document.getElementById('stoolBtn');   // New
+    const crampsBtn = document.getElementById('crampsBtn');
+    const gasBtn = document.getElementById('gasBtn');
+    const stoolBtn = document.getElementById('stoolBtn');
+    const diaperBtn = document.getElementById('diaperBtn'); // New Diaper button
     const milkInput = document.getElementById('milkInput');
     const activityTableBody = document.querySelector('#activityTable tbody');
-    const activityTimeInput = document.getElementById('activityTime'); // New
-    const resetTimeBtn = document.getElementById('resetTimeBtn'); // New
+    const activityTimeInput = document.getElementById('activityTime');
+    const resetTimeBtn = document.getElementById('resetTimeBtn');
 
     let activities = [];
 
-    // Set the initial time input to the current time
+    // Function to format a Date object for the datetime-local input
+    // This will correctly set the input to the user's local time.
+    const formatDateTimeLocal = (date) => {
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    // Set the initial time input to the current local time
     const setActivityTimeToNow = () => {
         const now = new Date();
         now.setSeconds(0); // Clear seconds for cleaner display
         now.setMilliseconds(0); // Clear milliseconds
-        activityTimeInput.value = now.toISOString().slice(0, 16); // Format for datetime-local input
+        activityTimeInput.value = formatDateTimeLocal(now);
     };
 
     // Load activities from localStorage
@@ -39,24 +51,30 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('newbornActivities', JSON.stringify(activities));
     };
 
-    // Function to get the time for logging
-    const getLogTime = () => {
+    // Function to get the time and date for logging
+    const getLogDateTime = () => {
+        let dateToLog;
         const inputTime = activityTimeInput.value;
+
         if (inputTime) {
-            // If user provided a time, use it
-            const date = new Date(inputTime);
-            return {
-                display: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                timestamp: date.getTime()
-            };
+            // If user provided a time, use it. Date will be parsed correctly as local.
+            dateToLog = new Date(inputTime);
         } else {
             // Otherwise, use the current time
-            const now = new Date();
-            return {
-                display: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                timestamp: now.getTime()
-            };
+            dateToLog = new Date();
         }
+
+        return {
+            // Format for display: e.g., "May 28, 2025, 06:13 PM"
+            display: dateToLog.toLocaleString([], {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }),
+            timestamp: dateToLog.getTime()
+        };
     };
 
     // Function to render activities in the table
@@ -71,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const activityCell = newRow.insertCell();
             const detailsCell = newRow.insertCell();
 
-            timeCell.textContent = activity.time; // This is the 'display' time
+            timeCell.textContent = activity.time; // This is the 'display' time (now includes date)
             activityCell.textContent = activity.type;
             detailsCell.textContent = activity.details || '';
         });
@@ -92,11 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Please enter a valid milk amount in ml.');
             return;
         }
-        const { display: time, timestamp } = getLogTime();
+        const { display: dateTimeDisplay, timestamp } = getLogDateTime();
         activities.push({
             type: 'Fed',
             details: `${milkAmount}ml`,
-            time: time,
+            time: dateTimeDisplay,
             timestamp: timestamp
         });
         milkInput.value = ''; // Clear input after logging
@@ -107,11 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Universal logging function for other activities
     const logActivity = (type, details = '') => {
-        const { display: time, timestamp } = getLogTime();
+        const { display: dateTimeDisplay, timestamp } = getLogDateTime();
         activities.push({
             type: type,
             details: details,
-            time: time,
+            time: dateTimeDisplay,
             timestamp: timestamp
         });
         saveActivities();
@@ -125,4 +143,5 @@ document.addEventListener('DOMContentLoaded', () => {
     crampsBtn.addEventListener('click', () => logActivity('Cramps'));
     gasBtn.addEventListener('click', () => logActivity('Gas'));
     stoolBtn.addEventListener('click', () => logActivity('Stool'));
+    diaperBtn.addEventListener('click', () => logActivity('Diaper Change')); // New Diaper event listener
 });
